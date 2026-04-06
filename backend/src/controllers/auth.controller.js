@@ -32,7 +32,7 @@ const registerUser = asyncHandler(async (req, res) => {
   if (existedUser) {
     throw new ApiError(
       400,
-      "Account is already exist with this email or password",
+      "Account is already exist with this email or password"
     );
   }
   const user = await User.create({
@@ -43,7 +43,7 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 
   const createdUser = await User.findById(user._id).select(
-    "-password -refreshToken",
+    "-password -refreshToken"
   );
 
   if (!createdUser) {
@@ -51,8 +51,10 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   return res
-    .status(200)
-    .json(new ApiResponse(201, createdUser, "user register succesfully"));
+    .status(201)
+    .json(
+      new ApiResponse(201, { user: createdUser }, "user register succesfully")
+    );
 });
 
 const loginUser = asyncHandler(async (req, res) => {
@@ -72,11 +74,11 @@ const loginUser = asyncHandler(async (req, res) => {
   }
 
   const { accessToken, refreshToken } = await generateAccessAndRefreshToken(
-    user._id,
+    user._id
   );
 
   const loggedInUser = await User.findById(user._id).select(
-    "-password -refreshToken",
+    "-password -refreshToken"
   );
 
   const options = {
@@ -92,9 +94,9 @@ const loginUser = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(
         200,
-        { accessToken, refreshToken, loggedInUser },
-        "user logged in succesfully",
-      ),
+        { user: loggedInUser, accessToken, refreshToken },
+        "user logged in succesfully"
+      )
     );
 });
 
@@ -106,7 +108,7 @@ const logoutUser = asyncHandler(async (req, res) => {
         refreshToken: 1,
       },
     },
-    { returnDocument: "after" },
+    { returnDocument: "after" }
   );
 
   const options = {
@@ -132,7 +134,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
   try {
     const decodedToken = jwt.verify(
       incomingRefreshToken,
-      process.env.REFRESH_TOKEN_SECRET,
+      process.env.REFRESH_TOKEN_SECRET
     );
     const user = await User.findById(decodedToken._id);
 
@@ -161,12 +163,24 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         new ApiResponse(
           200,
           { accessToken, refreshToken: newRefreshToken },
-          "access token refreshed",
-        ),
+          "access token refreshed"
+        )
       );
   } catch (error) {
     throw new ApiError(401, error?.message || "invalid refresh token");
   }
+});
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+  const user = req.user;
+
+  if (!user) {
+    throw new ApiError(404, "user not found");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { user }, "user fetched successfully"));
 });
 
 export {
@@ -175,4 +189,5 @@ export {
   loginUser,
   logoutUser,
   refreshAccessToken,
+  getCurrentUser,
 };
