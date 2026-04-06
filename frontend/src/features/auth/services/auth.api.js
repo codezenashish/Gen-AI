@@ -9,7 +9,7 @@ const handleApiError = (error, apiName) => {
 export const registerUser = async (registrationData) => {
   try {
     const apiResponse = await axiosClient.post("/register", registrationData);
-    console.log("api res from authapi",apiResponse);
+   
     return apiResponse.data.data;
     
   } catch (apiError) {
