@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "../AuthContext";
 import {
   loginUser,
@@ -84,6 +84,15 @@ export const useAuth = () => {
       setIsLoading(false);
     }
   };
+  
+   useEffect(() => {
+    const getAndSetUser = async () => {
+      const data = await getCurrentUser();
+      setUser(data.user);
+      setIsLoading(false);
+    };
+    getAndSetUser();
+  }, []);
 
   return {
     user,
