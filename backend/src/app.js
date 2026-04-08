@@ -1,7 +1,8 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import userRouter from "./routes/auth.routes.js";
+import authRouter from "./routes/auth.routes.js";
+import interviewRouter from "./routes/interview.route.js";
 const app = express();
 
 const REQUEST_BODY_SIZE_LIMIT = "10kb";
@@ -19,8 +20,8 @@ app.use(express.urlencoded({ limit: REQUEST_BODY_SIZE_LIMIT }));
 app.use(express.static(STATIC_FILE_DIR));
 app.use(cookieParser());
 
-app.use("/api/v1/users", userRouter);
-
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/interview", interviewRouter);
 export default app;
 
 
