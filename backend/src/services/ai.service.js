@@ -14,78 +14,30 @@ const interviewReportSchema = z.object({
   technicalQuestions: z
     .array(
       z.object({
-        question: z
-          .string()
-          .describe(
-            "A technical question relevant to the job description and the candidate's resume."
-          ),
-        intention: z
-          .string()
-          .describe(
-            "The intention behind asking this question, such as assessing specific skills or knowledge areas."
-          ),
-        answer: z
-          .string()
-          .describe(
-            "A detailed answer to the technical question, demonstrating the candidate's knowledge and experience."
-          ),
+        question: z.string().describe("A technical question relevant to the job description and the candidate's resume."),
+        intention: z.string().describe("The intention behind asking this question."),
+        answer: z.string().describe("A detailed answer to the technical question."),
       })
     )
-    .describe(
-      "An array of technical questions designed to evaluate the candidate's hard skills and technical expertise."
-    ),
+    .describe("An array of technical questions designed to evaluate hard skills."),
   behavioralQuestions: z
     .array(
       z.object({
-        question: z
-          .string()
-          .describe(
-            "A behavioral question designed to evaluate the candidate's soft skills, cultural fit, and past experiences."
-          ),
-        intention: z
-          .string()
-          .describe(
-            "The intention behind asking this question, such as understanding the candidate's problem-solving approach or teamwork abilities."
-          ),
-        answer: z
-          .string()
-          .describe(
-            "A detailed answer to the behavioral question, showcasing the candidate's interpersonal skills and relevant experiences."
-          ),
+        question: z.string().describe("A behavioral question designed to evaluate soft skills."),
+        intention: z.string().describe("The intention behind asking this question."),
+        answer: z.string().describe("A detailed answer showcasing interpersonal skills."),
       })
     )
-    .describe(
-      "An array of behavioral questions designed to evaluate the candidate's soft skills, cultural fit, and past experiences."
-    ),
+    .describe("An array of behavioral questions designed to evaluate soft skills."),
   skillGaps: z.array(
     z.object({
-      skill: z
-        .string()
-        .describe(
-          "A specific skill or knowledge area where the candidate may have gaps based on their resume and the job description."
-        ),
-      severity: z
-        .enum(["low", "medium", "high"])
-        .describe(
-          "The severity of the skill gap, indicating how critical it is for the candidate to address this gap in order to be successful in the role."
-        ),
+      skill: z.string().describe("A specific skill gap."),
+      severity: z.enum(["low", "medium", "high"]).describe("The severity of the skill gap."),
       preparationPlan: z.array(
         z.object({
-          day: z
-            .number()
-            .describe(
-              "The day number in the preparation plan, starting from 1."
-            ),
-          focusArea: z
-            .string()
-            .describe(
-              "The specific skill or knowledge area to focus on during this day of preparation."
-            ),
-          tasks: z
-            .array(z.string())
-            .describe(
-              "A list of specific tasks or activities the candidate should complete on this day to improve their skills in the focus area."
-            ),
+          day: z.number().describe("The day number in the preparation plan."),
+          focusArea: z.string().describe("The specific skill to focus on."),
+          tasks: z.array(z.string()).describe("A list of specific tasks."),
         })
       ),
     })
@@ -117,16 +69,19 @@ ${description}
 Provide a detailed and actionable interview report.`;
 
   try {
+    const jsonSchema = zodToJsonSchema(interviewReportSchema);
+    delete jsonSchema.$schema; 
+
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-3-flash-preview", 
       contents: prompt,
       config: {
         responseMimeType: "application/json",
-        responseSchema: zodToJsonSchema(interviewReportSchema),
+        responseSchema: jsonSchema, 
       },
     });
 
-    const responseText = response.text;
+    const responseText = response.text; 
     const parsedReport = JSON.parse(responseText);
 
     return parsedReport;
