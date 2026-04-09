@@ -34,12 +34,62 @@ const generateInterviewReportController = asyncHandler(async (req, res) => {
       selfDescription
     );
 
+    console.log("Raw AI Response:", JSON.stringify(aiResponse, null, 2));
+
+    const mappedResponse = {
+      // technical_questions (snake) ya technicalQuestions (camel) dono check karo
+      technicalQuestions: (
+        aiResponse.technical_questions ||
+        aiResponse.technicalQuestions ||
+        []
+      ).map((q) => ({
+        // Gemini agar string bhej raha hai toh string lo, warna object se question nikalo
+        questions: typeof q === "string" ? q : q.question || q.questions,
+        intention: q.intention || "Assess technical depth",
+      })),
+
+      // skill_gaps (snake) ya skillGaps (camel) check karo
+      skillsGap: (aiResponse.skill_gaps || aiResponse.skillGaps || []).map(
+        (gap) => ({
+          missingSkill:
+            typeof gap === "string" ? gap : gap.skill || gap.missingSkill,
+          importance: gap.severity
+            ? gap.severity.charAt(0).toUpperCase() + gap.severity.slice(1)
+            : "Medium",
+        })
+      ),
+
+      // preparation_plan (snake) ya preparationPlan (camel) check karo
+      preparationPlan: (
+        aiResponse.preparation_plan ||
+        aiResponse.preparationPlan ||
+        []
+      ).map((plan, index) => {
+        // Agar Gemini ne simple string array bheja hai (jaisa aapke terminal log mein tha)
+        if (typeof plan === "string") {
+          return {
+            day: index + 1,
+            focus: "General Improvement",
+            task: plan,
+          };
+        }
+        // Agar Gemini ne object bheja hai
+        return {
+          day: plan.day || index + 1,
+          focus: plan.focusArea || plan.focus || "Focus Area",
+          task: Array.isArray(plan.tasks)
+            ? plan.tasks.join(", ")
+            : plan.task || "",
+        };
+      }),
+    };
+
     const interviewReport = await InterviewReport.create({
       user: req.user?._id,
       jobDescription,
       selfDescription,
       resume: resumeText,
-      ...aiResponse,
+      ...mappedResponse,
     });
 
     fs.unlinkSync(resumeLocalPath);
