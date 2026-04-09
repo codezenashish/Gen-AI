@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
-import { useAuth } from "../hooks/useAuth";
+import { useAuth } from "../hooks/useAuth.js";
+import { Lock, Mail, Sparkles } from "lucide-react";
 
 const Login = () => {
   const { user, isLoading, handleLogin } = useAuth();
@@ -9,12 +10,9 @@ const Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // Redirect after successful login
   useEffect(() => {
     if (user) {
-      console.log("✅ Login Successful! User:", user);
-      alert(`Welcome ${user.username || user.email}!`);
-      navigate("/dashboard"); // ye page baad mein create karenge
+      navigate("/dashboard");
     }
   }, [user, navigate]);
 
@@ -28,92 +26,101 @@ const Login = () => {
     }
 
     try {
-      console.log("📤 Sending login request...");
       await handleLogin({ email, password });
-      console.log("✅ handleLogin completed, waiting for user state update...");
     } catch (err) {
       const errorMsg =
         err.response?.data?.message || err.message || "Login fail ho gaya";
-      console.error("❌ Login Error:", err);
       setError(errorMsg);
     }
   };
 
   if (isLoading) {
     return (
-      <main className="flex items-center justify-center min-h-screen bg-slate-900">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-400 mx-auto mb-4"></div>
-          <h1 className="text-white text-xl">Loading... Please Wait</h1>
+      <main className="flex items-center justify-center min-h-screen bg-black">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-blue-500 mb-4"></div>
+          <p className="text-slate-400 font-medium">Authenticating...</p>
         </div>
       </main>
     );
   }
 
   return (
-    <main className="flex items-center justify-center min-h-screen bg-slate-900 text-white font-sans">
-      <div className="w-full max-w-md p-8 space-y-6 bg-slate-800 rounded-2xl shadow-2xl border border-slate-700">
-        <h1 className="text-3xl font-bold text-center text-blue-400">Login</h1>
+    <main className="flex items-center justify-center min-h-screen bg-black text-white font-sans p-6">
+      <div className="w-full max-w-100 space-y-8">
+        {/* Header Section */}
+        <div className="text-center space-y-2">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-[20px] bg-linear-to-b from-blue-500 to-blue-600 mb-4 shadow-lg shadow-blue-500/20">
+            <Lock size={30} className="text-white" />
+          </div>
+          <h1 className="text-3xl font-extrabold tracking-tight">
+            Welcome Back
+          </h1>
+          <p className="text-slate-500 font-medium text-sm uppercase tracking-widest">
+            Enter your credentials
+          </p>
+        </div>
 
+        {/* Error Callout */}
         {error && (
-          <div className="p-3 bg-red-900 border border-red-700 rounded-lg text-red-100">
-            {error}
+          <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm font-medium animate-in fade-in slide-in-from-top-2">
+            ⚠️ {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {/* Email Field */}
-          <div>
-            <label className="block text-sm font-medium mb-1" htmlFor="email">
-              Email Address
-            </label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-              placeholder="Enter your email"
-              required
-            />
+        {/* Login Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <div className="relative group">
+              <Mail
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors"
+                size={18}
+              />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 rounded-[18px] bg-[#1c1c1e] border border-[#2c2c2e] text-white placeholder-slate-600 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 transition-all outline-none"
+                placeholder="Email Address"
+                required
+              />
+            </div>
           </div>
 
-          {/* Password Field */}
-          <div>
-            <label
-              className="block text-sm font-medium mb-1"
-              htmlFor="password"
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 rounded-lg bg-slate-700 border border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-              placeholder="Enter your password"
-              required
-            />
+          <div className="space-y-2">
+            <div className="relative group">
+              <Lock
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-blue-500 transition-colors"
+                size={18}
+              />
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 rounded-[18px] bg-[#1c1c1e] border border-[#2c2c2e] text-white placeholder-slate-600 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500/50 transition-all outline-none"
+                placeholder="Password"
+                required
+              />
+            </div>
           </div>
 
-          {/* Login Button */}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full py-3 mt-4 text-lg font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 active:scale-95 transition-all duration-200 shadow-lg shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 py-4 mt-6 text-base font-bold text-white bg-[#007aff] hover:bg-[#0071e3] rounded-[18px] transition-all active:scale-[0.97] active:brightness-90 shadow-xl shadow-blue-500/10 disabled:opacity-50"
           >
-            {isLoading ? "Logging in..." : "Sign In"}
+            Sign In
           </button>
         </form>
 
-        <p className="text-sm text-center text-slate-400">
-          Account nahi hai?{" "}
+        {/* Footer Link */}
+        <p className="text-center text-slate-500 text-sm font-medium">
+          New here?{" "}
           <Link
             to="/register"
-            className="text-blue-400 hover:underline font-medium"
+            className="text-blue-500 hover:text-blue-400 transition-colors font-bold"
           >
-            Register Karo
+            Create an Account
           </Link>
         </p>
       </div>
