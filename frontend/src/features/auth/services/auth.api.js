@@ -1,4 +1,4 @@
-import axiosClient from "../../../api/axiosClient.js";
+import axiosClient from "../../../utils/axiosClient.js";
 
 const handleApiError = (error, apiName) => {
   const errorMessage = error.response?.data?.message || error.message;
@@ -8,10 +8,12 @@ const handleApiError = (error, apiName) => {
 
 export const registerUser = async (registrationData) => {
   try {
-    const apiResponse = await axiosClient.post("/register", registrationData);
-   
+    const apiResponse = await axiosClient.post(
+      "/auth/register",
+      registrationData,
+    );
+
     return apiResponse.data.data;
-    
   } catch (apiError) {
     handleApiError(apiError, "User Registration API");
   }
@@ -19,7 +21,7 @@ export const registerUser = async (registrationData) => {
 
 export const loginUser = async (loginCredentials) => {
   try {
-    const apiResponse = await axiosClient.post("/login", loginCredentials);
+    const apiResponse = await axiosClient.post("/auth/login", loginCredentials);
     return apiResponse.data.data;
   } catch (apiError) {
     handleApiError(apiError, "User Login API");
@@ -28,7 +30,7 @@ export const loginUser = async (loginCredentials) => {
 
 export const logoutUser = async () => {
   try {
-    const apiResponse = await axiosClient.post("/logout");
+    const apiResponse = await axiosClient.post("/auth/logout");
     return apiResponse.data;
   } catch (apiError) {
     handleApiError(apiError, "User Logout API");
@@ -37,7 +39,7 @@ export const logoutUser = async () => {
 
 export const getCurrentUser = async (getmeData) => {
   try {
-    const apiResponse = await axiosClient.get("/get-me");
+    const apiResponse = await axiosClient.get("/auth/get-me");
     return apiResponse.data.data;
   } catch (apiError) {
     handleApiError(apiError, "get me data");
