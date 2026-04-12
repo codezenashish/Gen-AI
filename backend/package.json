@@ -2,7 +2,8 @@
   "name": "index.js",
   "type": "module",
   "scripts": {
-    "dev": "bun --watch src/index.js"
+    "dev": "bun --watch src/index.js",
+    "start": "bun run src/index.js"
   },
   "dependencies": {
     "@google/genai": "^1.48.0",
